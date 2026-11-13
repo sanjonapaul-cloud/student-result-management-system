@@ -1,9 +1,9 @@
+
 import mongoose from "mongoose";
 import User from "../models/User.js";
+import Result from "../models/Result.js";
 
-// @desc    Create a new student
-// @route   POST /api/students
-// @access  Admin only
+// CREATE STUDENT
 export const createStudent = async (req, res) => {
   try {
     const {
@@ -46,14 +46,30 @@ export const createStudent = async (req, res) => {
     }
 
     // Check password length
-    if (password.length < 8) {
+    if (typeof password !== "string" || password.length < 8) {
       return res.status(400).json({
         success: false,
         message: "Password must contain at least 8 characters."
       });
     }
 
-    // Normalize values
+    // Validate and normalize string fields
+    if (
+      typeof name !== "string" ||
+      typeof email !== "string" ||
+      typeof rollNumber !== "string" ||
+      typeof department !== "string" ||
+      !name.trim() ||
+      !email.trim() ||
+      !rollNumber.trim() ||
+      !department.trim()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid student details."
+      });
+    }
+
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedRollNumber = rollNumber.trim().toUpperCase();
 
@@ -98,7 +114,6 @@ export const createStudent = async (req, res) => {
     });
 
   } catch (error) {
-    // Handle duplicate key errors from MongoDB
     if (error.code === 11000) {
       return res.status(409).json({
         success: false,
@@ -115,9 +130,7 @@ export const createStudent = async (req, res) => {
   }
 };
 
-// @desc    Get all students
-// @route   GET /api/students
-// @access  Admin only
+// GET ALL STUDENTS
 export const getAllStudents = async (req, res) => {
   try {
     const students = await User.find({ role: "student" })
@@ -139,14 +152,12 @@ export const getAllStudents = async (req, res) => {
     });
   }
 };
-// @desc    Get a student by ID
-// @route   GET /api/students/:id
-// @access  Admin only
+
+// GET STUDENT BY ID
 export const getStudentById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate MongoDB ID
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({
         success: false,
@@ -181,12 +192,11 @@ export const getStudentById = async (req, res) => {
   }
 };
 
- // @desc    Update student details
- // @route   PUT /api/students/:id
- // @access  Admin only
+// UPDATE STUDENT
 export const updateStudent = async (req, res) => {
   try {
     const { id } = req.params;
+
     const {
       name,
       email,
@@ -195,7 +205,6 @@ export const updateStudent = async (req, res) => {
       semester
     } = req.body;
 
-    // Validate MongoDB ID
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({
         success: false,
@@ -203,7 +212,6 @@ export const updateStudent = async (req, res) => {
       });
     }
 
-    // Find the student
     const student = await User.findOne({
       _id: id,
       role: "student"
@@ -236,7 +244,7 @@ export const updateStudent = async (req, res) => {
       });
     }
 
-    // Validate and normalize individual fields
+    // Validate and update name
     if (name !== undefined) {
       if (typeof name !== "string" || !name.trim()) {
         return res.status(400).json({
@@ -244,9 +252,11 @@ export const updateStudent = async (req, res) => {
           message: "Name cannot be empty."
         });
       }
+
       student.name = name.trim();
     }
 
+    // Validate and update email
     if (email !== undefined) {
       if (typeof email !== "string" || !email.trim()) {
         return res.status(400).json({
@@ -254,29 +264,41 @@ export const updateStudent = async (req, res) => {
           message: "Email cannot be empty."
         });
       }
+
       student.email = email.trim().toLowerCase();
     }
 
+    // Validate and update roll number
     if (rollNumber !== undefined) {
-      if (typeof rollNumber !== "string" || !rollNumber.trim()) {
+      if (
+        typeof rollNumber !== "string" ||
+        !rollNumber.trim()
+      ) {
         return res.status(400).json({
           success: false,
           message: "Roll number cannot be empty."
         });
       }
+
       student.rollNumber = rollNumber.trim().toUpperCase();
     }
 
+    // Validate and update department
     if (department !== undefined) {
-      if (typeof department !== "string" || !department.trim()) {
+      if (
+        typeof department !== "string" ||
+        !department.trim()
+      ) {
         return res.status(400).json({
           success: false,
           message: "Department cannot be empty."
         });
       }
+
       student.department = department.trim();
     }
 
+    // Validate and update semester
     if (semester !== undefined) {
       const semesterNumber = Number(semester);
 
@@ -310,7 +332,6 @@ export const updateStudent = async (req, res) => {
       });
     }
 
-    // Save updated student
     await student.save();
 
     return res.status(200).json({
@@ -344,14 +365,12 @@ export const updateStudent = async (req, res) => {
   }
 };
 
- // @desc    Delete a student
- // @route   DELETE /api/students/:id
- // @access  Admin only
+// DELETE STUDENT
 export const deleteStudent = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate MongoDB ID
+    // Validate student ID
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({
         success: false,
@@ -359,8 +378,8 @@ export const deleteStudent = async (req, res) => {
       });
     }
 
-    // Find and delete student
-    const student = await User.findOneAndDelete({
+    // Find student without deleting
+    const student = await User.findOne({
       _id: id,
       role: "student"
     });
@@ -371,6 +390,24 @@ export const deleteStudent = async (req, res) => {
         message: "Student not found."
       });
     }
+
+    // Prevent deletion if student has existing results
+    const existingResult = await Result.exists({
+      student: id
+    });
+
+    if (existingResult) {
+      return res.status(409).json({
+        success: false,
+        message: "Cannot delete a student who has existing results."
+      });
+    }
+
+    // Delete only after checking associated results
+    await User.findOneAndDelete({
+      _id: id,
+      role: "student"
+    });
 
     return res.status(200).json({
       success: true,

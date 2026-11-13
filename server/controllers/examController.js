@@ -1,7 +1,10 @@
+
 import mongoose from "mongoose";
 import Exam from "../models/Exam.js";
 import Subject from "../models/Subject.js";
+import Result from "../models/Result.js";
 
+// CREATE EXAM
 export const createExam = async (req, res) => {
   try {
     const {
@@ -27,6 +30,19 @@ export const createExam = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "All exam fields are required."
+      });
+    }
+
+    // Validate title and academic year
+    if (
+      typeof title !== "string" ||
+      !title.trim() ||
+      typeof academicYear !== "string" ||
+      !academicYear.trim()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid exam title or academic year."
       });
     }
 
@@ -116,6 +132,8 @@ export const createExam = async (req, res) => {
     });
   }
 };
+
+// GET ALL EXAMS
 export const getAllExams = async (req, res) => {
   try {
     const exams = await Exam.find()
@@ -137,11 +155,12 @@ export const getAllExams = async (req, res) => {
     });
   }
 };
+
+// GET EXAM BY ID
 export const getExamById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate MongoDB ObjectId
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({
         success: false,
@@ -173,6 +192,8 @@ export const getExamById = async (req, res) => {
     });
   }
 };
+
+// UPDATE EXAM
 export const updateExam = async (req, res) => {
   try {
     const { id } = req.params;
@@ -187,7 +208,6 @@ export const updateExam = async (req, res) => {
       passingMarks
     } = req.body;
 
-    // Validate exam ID
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({
         success: false,
@@ -204,7 +224,6 @@ export const updateExam = async (req, res) => {
       });
     }
 
-    // Check whether at least one field was provided
     if (
       title === undefined &&
       subject === undefined &&
@@ -357,6 +376,8 @@ export const updateExam = async (req, res) => {
     });
   }
 };
+
+// DELETE EXAM
 export const deleteExam = async (req, res) => {
   try {
     const { id } = req.params;
@@ -369,7 +390,8 @@ export const deleteExam = async (req, res) => {
       });
     }
 
-    const exam = await Exam.findByIdAndDelete(id);
+    // Check whether exam exists
+    const exam = await Exam.findById(id);
 
     if (!exam) {
       return res.status(404).json({
@@ -377,6 +399,18 @@ export const deleteExam = async (req, res) => {
         message: "Exam not found."
       });
     }
+
+    // Prevent deletion if student results exist
+    const existingResult = await Result.exists({ exam: id });
+
+    if (existingResult) {
+      return res.status(409).json({
+        success: false,
+        message: "Cannot delete an exam that has student results."
+      });
+    }
+
+    await Exam.findByIdAndDelete(id);
 
     return res.status(200).json({
       success: true,

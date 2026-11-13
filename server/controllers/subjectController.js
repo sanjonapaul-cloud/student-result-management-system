@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Subject from "../models/Subject.js";
+import Exam from "../models/Exam.js";
 export const createSubject = async (req, res) => {
   try {
     const {
@@ -301,15 +302,15 @@ export const deleteSubject = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate subject ID
-    if (!mongoose.isValidObjectId(id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
         message: "Invalid subject ID."
       });
     }
 
-    const subject = await Subject.findByIdAndDelete(id);
+    // Check whether the subject exists
+    const subject = await Subject.findById(id);
 
     if (!subject) {
       return res.status(404).json({
@@ -318,17 +319,26 @@ export const deleteSubject = async (req, res) => {
       });
     }
 
+    // Check whether any exam is associated with this subject
+    const existingExam = await Exam.exists({ subject: id });
+
+    if (existingExam) {
+      return res.status(409).json({
+        success: false,
+        message: "Cannot delete a subject that has associated exams."
+      });
+    }
+
+    await Subject.findByIdAndDelete(id);
+
     return res.status(200).json({
       success: true,
       message: "Subject deleted successfully."
     });
-
   } catch (error) {
-    console.error("Delete subject error:", error);
-
     return res.status(500).json({
       success: false,
-      message: "Server error while deleting subject."
+      message: error.message
     });
   }
 };
