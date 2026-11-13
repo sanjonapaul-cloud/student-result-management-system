@@ -9,7 +9,7 @@ import Students from "./pages/Students";
 import Subjects from "./pages/Subjects";
 import Exams from "./pages/Exams";
 import Results from "./pages/Results";
-
+import StudentResults from "./pages/StudentResults";
 import { useAuth } from "./context/AuthContext";
 import "./App.css";
 
@@ -86,6 +86,14 @@ function App() {
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentDashboard />
             </ProtectedRoute>
+          }
+        />
+        <Route
+           path="/student/results"
+           element={
+          <ProtectedRoute allowedRoles={["student"]}>
+             <StudentResults />
+          </ProtectedRoute>
           }
         />
 

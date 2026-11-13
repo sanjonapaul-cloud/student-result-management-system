@@ -35,63 +35,114 @@ const StudentDashboard = () => {
     fetchMyResults();
   }, []);
 
+  const passedResults = results.filter(
+    (result) => result.status === "Pass"
+  ).length;
+
+  const failedResults = results.filter(
+    (result) => result.status === "Fail"
+  ).length;
+
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <div>
-          <h1>Student Dashboard</h1>
-          <p>Student Result Management System</p>
+    <div className="student-layout">
+
+      <aside className="student-sidebar">
+        <div className="sidebar-brand">
+          <div className="brand-icon">E</div>
+          <div>
+            <h2>EduTrack</h2>
+            <span>STUDENT PORTAL</span>
+          </div>
         </div>
 
-        <button onClick={handleLogout}>Logout</button>
-      </header>
+        <div className="sidebar-section-label">STUDENT MENU</div>
 
-      <main className="dashboard-content">
-        <h2>Welcome, {user?.name}</h2>
-        <p>You are logged in as a Student.</p>
+        <nav className="sidebar-nav">
+          <div className="sidebar-link active">
+            <span className="sidebar-icon">▦</span>
+            My Dashboard
+          </div>
 
-        <section className="table-container">
-          <h2>My Examination Results</h2>
+          <a href="/student/results" className="sidebar-link">
+             <span className="sidebar-icon">◈</span>
+               My Results
+          </a>
+        </nav>
 
-          {loading && <p>Loading your results...</p>}
+        <div className="sidebar-footer">
+          <div className="admin-avatar">
+            {user?.name?.charAt(0).toUpperCase()}
+          </div>
 
-          {error && <p className="error-message">{error}</p>}
+          <div className="sidebar-user">
+            <strong>{user?.name}</strong>
+            <span>Student</span>
+          </div>
+        </div>
+      </aside>
 
-          {!loading && !error && results.length === 0 && (
-            <p>No examination results available yet.</p>
-          )}
+      <div className="student-main">
 
-          {!loading && !error && results.length > 0 && (
-            <table>
-              <thead>
-                <tr>
-                  <th>Exam</th>
-                  <th>Subject</th>
-                  <th>Marks</th>
-                  <th>Percentage</th>
-                  <th>Grade</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
+        <header className="admin-topbar">
+          <div>
+            <span className="topbar-label">STUDENT PORTAL</span>
+            <h2>My Dashboard</h2>
+          </div>
 
-              <tbody>
-                {results.map((result) => (
-                  <tr key={result._id}>
-                    <td>{result.exam?.title}</td>
-                    <td>{result.exam?.subject?.name}</td>
-                    <td>
-                      {result.marksObtained} / {result.exam?.totalMarks}
-                    </td>
-                    <td>{result.percentage}%</td>
-                    <td>{result.grade}</td>
-                    <td>{result.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </section>
-      </main>
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
+          </button>
+        </header>
+
+        <main className="student-content">
+
+          <section className="welcome-section">
+            <div>
+              <h1>Welcome back, {user?.name}!</h1>
+              <p>Here's an overview of your academic performance.</p>
+            </div>
+
+            <span className="admin-status">
+              <span className="status-dot"></span>
+              Student Account
+            </span>
+          </section>
+
+          <section className="student-profile-card">
+            <div className="profile-avatar">
+              {user?.name?.charAt(0).toUpperCase()}
+            </div>
+
+            <div className="profile-details">
+              <span>STUDENT PROFILE</span>
+              <h2>{user?.name}</h2>
+              <p>{user?.email}</p>
+              {user?.rollNumber && (
+                <p>Roll Number: {user.rollNumber}</p>
+              )}
+            </div>
+          </section>
+
+          <section className="student-stats">
+            <div className="student-stat-card">
+              <span>Total Results</span>
+              <h3>{results.length}</h3>
+            </div>
+
+            <div className="student-stat-card">
+              <span>Passed</span>
+              <h3 className="pass-number">{passedResults}</h3>
+            </div>
+
+            <div className="student-stat-card">
+              <span>Failed</span>
+              <h3 className="fail-number">{failedResults}</h3>
+            </div>
+          </section>
+
+          
+        </main>
+      </div>
     </div>
   );
 };

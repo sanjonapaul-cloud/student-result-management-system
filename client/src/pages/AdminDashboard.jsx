@@ -1,9 +1,8 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 import api from "../services/api";
-import { Link } from "react-router-dom";
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -57,55 +56,163 @@ const AdminDashboard = () => {
     fetchDashboardStats();
   }, []);
 
+  const navigationItems = [
+    { path: "/admin", label: "Dashboard", icon: "▦", end: true },
+    { path: "/admin/students", label: "Students", icon: "♙" },
+    { path: "/admin/subjects", label: "Subjects", icon: "▤" },
+    { path: "/admin/exams", label: "Exams", icon: "▣" },
+    { path: "/admin/results", label: "Results", icon: "◈" },
+  ];
+
+  const statCards = [
+    {
+      label: "Total Students",
+      value: stats.students,
+      icon: "♙",
+      color: "blue",
+    },
+    {
+      label: "Total Subjects",
+      value: stats.subjects,
+      icon: "▤",
+      color: "purple",
+    },
+    {
+      label: "Total Exams",
+      value: stats.exams,
+      icon: "▣",
+      color: "orange",
+    },
+    {
+      label: "Total Results",
+      value: stats.results,
+      icon: "◈",
+      color: "green",
+    },
+  ];
+
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <div>
-          <h1>Admin Dashboard</h1>
-          <p>Student Result Management System</p>
+    <div className="admin-layout">
+
+      <aside className="admin-sidebar">
+        <div className="sidebar-brand">
+          <div className="brand-icon">E</div>
+          <div>
+            <h2>EduTrack</h2>
+            <span>RESULT MANAGEMENT</span>
+          </div>
         </div>
 
-        <button onClick={handleLogout}>Logout</button>
-      </header>
+        <div className="sidebar-section-label">MAIN MENU</div>
 
-      <main className="dashboard-content">
-        <h2>Welcome, {user?.name}</h2>
-        <p>You are logged in as an Administrator.</p>
-        <nav className="dashboard-nav">
-           <Link to="/admin/students">Manage Students</Link>
-           <Link to="/admin/subjects">Manage Subjects</Link>
-           <Link to="/admin/exams">Manage Exams</Link>
-           <Link to="/admin/results">Manage Results</Link>
+        <nav className="sidebar-nav">
+          {navigationItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.end}
+              className={({ isActive }) =>
+                isActive ? "sidebar-link active" : "sidebar-link"
+              }
+            >
+              <span className="sidebar-icon">{item.icon}</span>
+              {item.label}
+            </NavLink>
+          ))}
         </nav>
 
-        {loading && <p>Loading dashboard statistics...</p>}
-
-        {error && <p className="error-message">{error}</p>}
-
-        {!loading && !error && (
-          <div className="dashboard-cards">
-            <div className="dashboard-card">
-              <h3>Total Students</h3>
-              <p>{stats.students}</p>
-            </div>
-
-            <div className="dashboard-card">
-              <h3>Total Subjects</h3>
-              <p>{stats.subjects}</p>
-            </div>
-
-            <div className="dashboard-card">
-              <h3>Total Exams</h3>
-              <p>{stats.exams}</p>
-            </div>
-
-            <div className="dashboard-card">
-              <h3>Total Results</h3>
-              <p>{stats.results}</p>
-            </div>
+        <div className="sidebar-footer">
+          <div className="admin-avatar">A</div>
+          <div className="sidebar-user">
+            <strong>{user?.name}</strong>
+            <span>Administrator</span>
           </div>
-        )}
-      </main>
+        </div>
+      </aside>
+
+      <div className="admin-main">
+
+        <header className="admin-topbar">
+          <div>
+            <span className="topbar-label">ADMINISTRATION</span>
+            <h2>Dashboard Overview</h2>
+          </div>
+
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
+          </button>
+        </header>
+
+        <main className="admin-content">
+
+          <div className="welcome-section">
+            <div>
+              <h1>Welcome back, {user?.name}!</h1>
+              <p>Here's what's happening in your institution today.</p>
+            </div>
+
+            <span className="admin-status">
+              <span className="status-dot"></span>
+              Administrator
+            </span>
+          </div>
+
+          <section className="stats-section">
+            <div className="section-heading">
+              <h2>Overview</h2>
+              <p>Your academic management summary</p>
+            </div>
+
+            {loading && <p>Loading dashboard statistics...</p>}
+
+            {error && <p className="error-message">{error}</p>}
+
+            {!loading && !error && (
+              <div className="dashboard-cards">
+                {statCards.map((card) => (
+                  <div
+                    className={`dashboard-card stat-${card.color}`}
+                    key={card.label}
+                  >
+                    <div className="stat-card-top">
+                      <span>{card.label}</span>
+                      <div className="stat-icon">{card.icon}</div>
+                    </div>
+
+                    <h3>{card.value}</h3>
+                    <p>Currently registered</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="activity-section">
+            <div className="section-heading">
+              <h2>Quick Access</h2>
+              <p>Manage your academic records</p>
+            </div>
+
+            <div className="quick-access-grid">
+              {navigationItems.slice(1).map((item) => (
+                <NavLink
+                  to={item.path}
+                  className="quick-access-card"
+                  key={item.path}
+                >
+                  <span className="quick-access-icon">{item.icon}</span>
+                  <div>
+                    <strong>Manage {item.label}</strong>
+                    <span>View and update {item.label.toLowerCase()}</span>
+                  </div>
+                  <span className="quick-arrow">→</span>
+                </NavLink>
+              ))}
+            </div>
+          </section>
+
+        </main>
+      </div>
     </div>
   );
 };
