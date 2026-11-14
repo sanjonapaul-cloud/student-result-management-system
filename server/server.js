@@ -9,6 +9,7 @@ import studentRoutes from "./routes/studentRoutes.js";
 import subjectRoutes from "./routes/subjectRoutes.js";
 import examRoutes from "./routes/examRoutes.js";
 import resultRoutes from "./routes/resultRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -31,6 +32,7 @@ app.use("/api/students", studentRoutes);
 app.use("/api/subjects", subjectRoutes);
 app.use("/api/exams", examRoutes);
 app.use("/api/results", resultRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 const PORT = process.env.PORT || 5000;
 
