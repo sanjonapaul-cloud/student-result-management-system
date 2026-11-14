@@ -166,9 +166,7 @@
 
 .page-container button:hover,
 .student-form button:hover {
-  background: var(--primary-hover);
-}
-
+background: var(--primary-hover);}
 .page-container button:disabled,
 .student-form button:disabled {
   opacity: 0.6;
@@ -1124,6 +1122,43 @@
 
   .student-profile-card {
     padding: 18px;
+  }
+}
+/* =================================
+   EXAM MANAGEMENT FORM
+================================= */
+
+.student-form.exam-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.exam-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.exam-form .form-group label {
+  align-self: auto;
+  margin-bottom: 0;
+}
+
+.exam-form .form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+  margin-top: 5px;
+}
+
+@media (max-width: 600px) {
+  .student-form.exam-form {
+    grid-template-columns: 1fr;
+  }
+
+  .exam-form .form-actions {
+    flex-wrap: wrap;
   }
 }
 

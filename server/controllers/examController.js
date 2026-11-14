@@ -239,6 +239,57 @@ export const updateExam = async (req, res) => {
       });
     }
 
+// Protect academic exam configuration when results already exist.
+
+const protectedFields = [
+  "subject",
+  "examType",
+  "academicYear",
+  "totalMarks",
+  "passingMarks"
+];
+
+const existingResult = await Result.exists({ exam: id });
+
+if (existingResult) {
+  const existingExam = await Exam.findById(id);
+
+  if (!existingExam) {
+   return res.status(404).json({
+    success: false,
+    message: "Exam not found."
+  });
+}
+
+  const hasProtectedChanges = protectedFields.some((field) => {
+    if (req.body[field] === undefined) {
+      return false;
+    }
+
+    const submittedValue = req.body[field];
+    const existingValue = existingExam[field];
+
+    if (field === "subject") {
+      return submittedValue.toString() !== existingValue.toString();
+    }
+
+    if (field === "totalMarks" || field === "passingMarks") {
+      return Number(submittedValue) !== Number(existingValue);
+    }
+
+    return submittedValue !== existingValue;
+  });
+
+  if (hasProtectedChanges) {
+    return res.status(409).json({
+      success: false,
+      message:
+        "Exam configuration cannot be changed because student results already exist. Only the exam title and date can be updated."
+    });
+  }
+}
+
+
     // Validate title
     if (title !== undefined) {
       if (typeof title !== "string" || !title.trim()) {

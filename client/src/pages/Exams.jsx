@@ -166,95 +166,121 @@ const Exams = () => {
       {message && <p className="success-message">{message}</p>}
       {error && <p className="error-message">{error}</p>}
 
-      {showForm && (
-        <form className="student-form" onSubmit={handleSubmit}>
-          <h2>{editingExamId ? "Edit Exam" : "Add New Exam"}</h2>
 
-          <input
-            name="title"
-            placeholder="Exam Title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-          />
+{showForm && (
+  <form className="student-form exam-form" onSubmit={handleSubmit}>
+    <h2>{editingExamId ? "Edit Exam" : "Add New Exam"}</h2>
 
-          <label htmlFor="subject">Subject</label>
-          <select
-            id="subject"
-            name="subject"
-            value={formData.subject}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select Subject</option>
-            {subjects.map((subject) => (
-              <option key={subject._id} value={subject._id}>
-                {subject.name} ({subject.subjectCode})
-              </option>
-            ))}
-          </select>
+    <div className="form-group">
+      <label htmlFor="title">Exam Title</label>
+      <input
+        id="title"
+        name="title"
+        placeholder="Exam Title"
+        value={formData.title}
+        onChange={handleChange}
+        required
+      />
+    </div>
 
-          <label htmlFor="examType">Exam Type</label>
-          <select
-            id="examType"
-            name="examType"
-            value={formData.examType}
-            onChange={handleChange}
-            required
-          >
-            <option value="Internal">Internal</option>
-            <option value="Mid Semester">Mid Semester</option>
-            <option value="End Semester">End Semester</option>
-            <option value="Practical">Practical</option>
-          </select>
+    <div className="form-group">
+      <label htmlFor="subject">Subject</label>
+      <select
+        id="subject"
+        name="subject"
+        value={formData.subject}
+        onChange={handleChange}
+        required
+      >
+        <option value="">Select Subject</option>
+        {subjects.map((subject) => (
+          <option key={subject._id} value={subject._id}>
+            {subject.name} ({subject.subjectCode})
+          </option>
+        ))}
+      </select>
+    </div>
 
-          <input
-            name="academicYear"
-            placeholder="Academic Year (e.g. 2026-2027)"
-            value={formData.academicYear}
-            onChange={handleChange}
-            required
-          />
+    <div className="form-group">
+      <label htmlFor="examType">Exam Type</label>
+      <select
+        id="examType"
+        name="examType"
+        value={formData.examType}
+        onChange={handleChange}
+        required
+      >
+        <option value="Internal">Internal</option>
+        <option value="Mid Semester">Mid Semester</option>
+        <option value="End Semester">End Semester</option>
+        <option value="Practical">Practical</option>
+      </select>
+    </div>
 
-          <label htmlFor="examDate">Exam Date</label>
-          <input
-            id="examDate"
-            name="examDate"
-            type="date"
-            value={formData.examDate}
-            onChange={handleChange}
-            required
-          />
+    <div className="form-group">
+      <label htmlFor="academicYear">Academic Year</label>
+      <input
+        id="academicYear"
+        name="academicYear"
+        placeholder="e.g. 2026-2027"
+        value={formData.academicYear}
+        onChange={handleChange}
+        required
+      />
+    </div>
 
-          <input
-            name="totalMarks"
-            type="number"
-            placeholder="Total Marks"
-            min="1"
-            value={formData.totalMarks}
-            onChange={handleChange}
-            required
-          />
+    <div className="form-group">
+      <label htmlFor="examDate">Exam Date</label>
+      <input
+        id="examDate"
+        name="examDate"
+        type="date"
+        value={formData.examDate}
+        onChange={handleChange}
+        required
+      />
+    </div>
 
-          <input
-            name="passingMarks"
-            type="number"
-            placeholder="Passing Marks"
-            min="0"
-            value={formData.passingMarks}
-            onChange={handleChange}
-            required
-          />
+    <div className="form-group">
+      <label htmlFor="totalMarks">Total Marks</label>
+      <input
+        id="totalMarks"
+        name="totalMarks"
+        type="number"
+        placeholder="Total Marks"
+        min="1"
+        value={formData.totalMarks}
+        onChange={handleChange}
+        required
+      />
+    </div>
 
-          <button type="submit">
-            {editingExamId ? "Update Exam" : "Save Exam"}
-          </button>
+    <div className="form-group">
+      <label htmlFor="passingMarks">Passing Marks</label>
+      <input
+        id="passingMarks"
+        name="passingMarks"
+        type="number"
+        placeholder="Passing Marks"
+        min="0"
+        value={formData.passingMarks}
+        onChange={handleChange}
+        required
+      />
+    </div>
 
-          <button type="button" onClick={resetForm}>
-            Cancel
-          </button>
-        </form>
-      )}
+    <div className="form-actions">
+      <button type="submit">
+        {editingExamId ? "Update Exam" : "Save Exam"}
+      </button>
+
+      <button type="button" onClick={resetForm}>
+        Cancel
+      </button>
+    </div>
+  </form>
+)}
+
 
       <div className="table-container">
         {loading ? (
